@@ -105,7 +105,7 @@ namespace ElectronicObserver.Window {
 			this.ResumeLayoutForDpiScale();
 
 			DamageWidth = TableBottom.ColumnStyles[1].Width;
-        }
+		}
 
 		float DamageWidth = 60;
 
@@ -1776,7 +1776,7 @@ td,th,tr {text-align:left; padding:2px 4px;}
 					b.MainFont = MainFont;
 					b.SubFont = SubFont;
 					b.HPBar.ColorMorphing = Utility.Configuration.Config.UI.BarColorMorphing;
-					b.HPBar.SetBarColorScheme( Utility.Configuration.Config.UI.BarColorScheme.Select( col => col.ColorData ).ToArray() );
+					b.HPBar.ReloadBarSettings();
 				}
 			}
 			LinePen = new Pen( Utility.Configuration.Config.UI.LineColor.ColorData );

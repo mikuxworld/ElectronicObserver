@@ -28,7 +28,6 @@ namespace ElectronicObserver.Window.Dialog
 
         bool ShowVoice = false;
         string VoiceCachePath = "";
-        Utility.MediaPlayer MediaPlayer;
 
         public DialogAlbumMasterShip()
         {
@@ -135,6 +134,8 @@ namespace ElectronicObserver.Window.Dialog
             this.ResumeLayoutForDpiScale();
 
             VoiceCachePath = Utility.Configuration.Config.CacheSettings.CacheFolder + "\\kcs\\sound";
+
+            this.ResourceName.DoubleClick += new EventHandler(this.ResourceName_DoubleClick);
         }
 
         private void LoadShips(string filter)
@@ -276,7 +277,7 @@ namespace ElectronicObserver.Window.Dialog
             _shipID = shipID;
             ShipID.Text = ship.ShipID.ToString();
             AlbumNo.Text = ship.AlbumNo.ToString();
-            ResourceName.Text = string.Format("{0} ver. {1}", ship.ResourceName, ship.ResourceVersion);
+            ResourceName.Text = string.Format( "{0} ver. {1}", ship.ResourceName, ship.ResourceGraphicVersion );
 
             ShipType.Text = ship.IsLandBase ? "陸上基地" : db.ShipTypes[ship.ShipType].Name;
             ShipName.Text = ship.NameWithClass;
@@ -901,7 +902,7 @@ namespace ElectronicObserver.Window.Dialog
                                 ship.Ammo,
                                 Constants.GetVoiceFlag(ship.VoiceFlag),
                                 ship.ResourceName,
-                                ship.ResourceVersion
+                                ship.ResourceGraphicVersion
                                 );
 
                         }
@@ -1008,7 +1009,7 @@ namespace ElectronicObserver.Window.Dialog
                                 ship.Ammo,
                                 ship.VoiceFlag,
                                 ship.ResourceName,
-                                ship.ResourceVersion
+                                ship.ResourceGraphicVersion
                                 );
 
                         }
@@ -1086,6 +1087,13 @@ namespace ElectronicObserver.Window.Dialog
                 LoadVoice();
         }
 
+        private void lblDownloadAllVoice_Click(object sender, EventArgs e)
+        {
+            Task.Factory
+                .StartNew(DownloadAllVoice)
+                .ContinueWith(t => LoadVoice(), scheduler: TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
         void LoadVoice()
         {
             dataGridView1.SuspendLayout();
@@ -1110,6 +1118,32 @@ namespace ElectronicObserver.Window.Dialog
             dataGridView1.ResumeLayout();
         }
 
+        private void DownloadAllVoice()
+        {
+            System.Net.WebClient client = new System.Net.WebClient();
+            for (int i = 1; i < Utility.KanVoice.GetVoiceCount(); i++)
+            {
+                string address = Utility.KanVoice.GetVoiceServerPath(_shipID, i);
+                string localFilePath = Path.Combine(VoiceCachePath, Utility.KanVoice.GetVoicePath(_shipID, i));
+                try
+                {
+                    if (!File.Exists(localFilePath))
+                    {
+                        Utility.Logger.Add(2, string.Format("下载语音文件: {0}", address));
+                        Directory.CreateDirectory(Path.GetDirectoryName(localFilePath));
+                        client.DownloadFile(address, localFilePath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (ex.InnerException != null)
+                        ex = ex.InnerException;
+                    Utility.Logger.Add(2, string.Format("发生错误: {0}", ex.Message));
+                }
+            }
+
+        }
+
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == VoiceColAction.Index)
@@ -1117,17 +1151,31 @@ namespace ElectronicObserver.Window.Dialog
                 string text = Utility.KanVoice.GetVoiceText(_shipID, (int)(dataGridView1.Rows[e.RowIndex].Cells[0].Tag));
                 if (text != null)
                     Description.Text = text;
-                if (MediaPlayer == null)
-                    MediaPlayer = new Utility.MediaPlayer();
+
+                var MediaPlayer = FormMain.MediaPlayer;
+                   
                 if (MediaPlayer.PlayState > 0)
                     MediaPlayer.Stop();
                 MediaPlayer.SourcePath = dataGridView1.Rows[e.RowIndex].Tag.ToString();
                 MediaPlayer.IsLoop = false;
                 MediaPlayer.Play();
             }
-            if (e.ColumnIndex ==VoiceColPath.Index)
+            if (e.ColumnIndex == VoiceColPath.Index)
             {
-                System.Diagnostics.Process.Start("Explorer.exe", "/e,/select," + dataGridView1.Rows[e.RowIndex].Tag.ToString());
+                System.Diagnostics.Process.Start("Explorer.exe", "/n,/select, " + dataGridView1.Rows[e.RowIndex].Tag.ToString());
+            }
+        }
+
+        private void ResourceName_DoubleClick(object sender, EventArgs e)
+        {
+            var ship = KCDatabase.Instance.MasterShips[_shipID];
+            if (ship != null)
+            {
+                string shipResourceFolder = Utility.Configuration.Config.CacheSettings.CacheFolder + @"\kcs\resources\swf\ships";
+                if (Directory.Exists(shipResourceFolder))
+                {
+                    System.Diagnostics.Process.Start("Explorer.exe", "/n,/select, " + shipResourceFolder + "\\" + ship.ResourceName + ".swf");
+                }
             }
         }
     }

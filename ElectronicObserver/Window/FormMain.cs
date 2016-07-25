@@ -575,6 +575,8 @@ namespace ElectronicObserver.Window
             if (c.Life.CanScreenDock)
                 StopRectTimer.Enabled = true;
 
+			StripMenu_File_Layout_TopMost.Checked = c.Life.TopMost;
+
             if (!c.Control.UseSystemVolume)
                 _volumeUpdateState = -1;
         }
@@ -1319,6 +1321,13 @@ namespace ElectronicObserver.Window
         }
 
 
+        private void StripMenu_File_Layout_TopMost_Click(object sender, EventArgs e)
+        {
+
+            Utility.Configuration.Config.Life.TopMost = StripMenu_File_Layout_TopMost.Checked;
+            ConfigurationChanged();
+
+        }
 
 
 
@@ -1379,6 +1388,7 @@ namespace ElectronicObserver.Window
         }
 
         #endregion
+
 
 
 

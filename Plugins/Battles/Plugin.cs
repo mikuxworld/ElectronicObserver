@@ -23,5 +23,6 @@ namespace Battles
 		{
 			return new Settings();
 		}
-	}
+
+    }
 }

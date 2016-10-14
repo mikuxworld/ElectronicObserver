@@ -987,7 +987,8 @@ namespace ElectronicObserver.Utility {
 					ZoomRate = 100;
 					ZoomFit = false;
 					LogInPageURL = @"http://www.dmm.com/netgame_s/kancolle/";
-					IsEnabled = true;
+                    //LogInPageURL = @"http://osu.ppy.sh/";
+                    IsEnabled = true;
 					ScreenShotPath = "ScreenShot";
 					ScreenShotFormat = 2;
 					StyleSheet = "\r\nbody {\r\n	margin:0;\r\n	overflow:hidden\r\n}\r\n\r\n#game_frame {\r\n	position:fixed;\r\n	left:50%;\r\n	top:-16px;\r\n	margin-left:-450px;\r\n	z-index:1\r\n}\r\n";

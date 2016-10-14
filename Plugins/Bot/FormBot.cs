@@ -83,7 +83,7 @@ namespace ElectronicObserver.Window {
             }
             mutex = true;
             
-            Utility.Logger.Add(2, "开始工作循环");
+           // Utility.Logger.Add(2, "开始工作循环");
             ex= new Executor(HWND);
             ex.start();
             Thread.Sleep(1000);

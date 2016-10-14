@@ -219,15 +219,15 @@ namespace Bot {
                     if (detect_gamestart()) {
                         btn.gameStart.left_click();
                     }
-                    Thread.Sleep(1000);
+                    Thread.Sleep(2000);
                     if (detect_home()) {
                         return true;
                     }
-                    Thread.Sleep(1000);
+                    Thread.Sleep(2000);
                     if (!detect_home()) {
                         btn.backHome2.left_click();
                     }
-                    Thread.Sleep(1000);
+                    Thread.Sleep(2000);
                 }
                 ElectronicObserver.Utility.Logger.Add(3, "无法返回母港，刷新");
                 WinAPI.refreshBrowser(HWND);
@@ -242,33 +242,45 @@ namespace Bot {
         public bool refresh_home () {
             try {
                 bool flag = false;
+                ElectronicObserver.Utility.Logger.Add(3, "刷新母港状态");
+
+                
+                if (!detect_home()) {
+                    recover_home();
+                }
+                if (!detect_home()) {
+                    return false;
+                }
+                btn.launch.left_click();
+                Thread.Sleep(500);
+                flag = false;
                 for (int i = 0; i < 10; i++) {
-                    
-                    ElectronicObserver.Utility.Logger.Add(3, string.Format("尝试刷新母港，次数{0}", i + 1));
-                    if (detect_home() && !flag) {
+                    if (detect_launch()) {   
                         flag = true;
-                        btn.launch.left_click();
-                        Thread.Sleep(1000);
-                    }
-                    
-                    
-                    if (detect_backhome()) {
-                        btn.backHome.left_click();
-                        Thread.Sleep(2000);
-                    }
-                    else {
-                        continue;
-                    }
-                    
-                    if (detect_home()) {
-                        return true;
+                        break;
+                    }                  
+                    Thread.Sleep(1000);
+                }
+                if (!flag) {
+                    ElectronicObserver.Utility.Logger.Add(3, "失败，下次执行时重试");
+                    throw (new Exception());
+                }
+
+                for (int i = 0; i < 10; i++) {
+                    if (!detect_home()) {
+                        recover_home();
+                        if (detect_home()) {
+                            return true;
+                        }
                     }
                     Thread.Sleep(1000);
-                    
                 }
-                recover_home();
-                ElectronicObserver.Utility.Logger.Add(3, "无法刷新母港，强制返回母港");
-                WinAPI.refreshBrowser(HWND);
+                
+                
+
+                ElectronicObserver.Utility.Logger.Add(3, "无法刷新母港");
+                
+                //WinAPI.refreshBrowser(HWND);
             }
             catch (Exception e) {
                 recover_home();

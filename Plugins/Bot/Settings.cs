@@ -16,5 +16,14 @@ namespace Bot {
         public Settings () {
             InitializeComponent();
         }
+        public override bool Save () {
+
+
+            return true;
+        }
+
+        private void Settings_Load (object sender, EventArgs e) {
+            
+        }
     }
 }

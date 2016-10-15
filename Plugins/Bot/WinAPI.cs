@@ -97,7 +97,7 @@ namespace Bot {
         public static void refreshBrowser(IntPtr hwnd) {
             WinAPI.SetForegroundWindow(hwnd);
             WinAPI.SetFocus(hwnd);
-            SendKeys.Send("{F5}");
+            SendKeys.SendWait("{F5}");
         }
 
 
